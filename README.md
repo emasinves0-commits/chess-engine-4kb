@@ -19,6 +19,23 @@ A chess engine in under 4,096 bytes of Python 3.13 (standard library only) for t
 
 `main.py` is an LZMA-packed build (`makefun compress`) of the readable engine source.
 
+## What's new in v2
+
+v2 keeps the v1 evaluation untouched (eval tuning was measured to be exhausted:
+retuning changed nothing) and wins its Elo from search-level changes instead:
+
+- single-pass move generation replaces the two-scan generator (+21% nodes/sec)
+- aggressive late-move reductions (r=2 for late quiet moves at depth>5, index>9)
+  flip three games v1 drew or lost into wins
+- node budget raised from 80k to 120k per move (endgame doubling kept; the
+  cumulative-node halving threshold rescaled to 300x the new budget); the extra
+  depth wins the 500k-node practice game that the 100k build lost by checkmate
+- a 2-line opening book (Slav Defence vs 250k as White, Philidor Defence vs 500k
+  as Black; 286 bytes inside `main.py`) covers the two hardest practice games,
+  with permanent search fallback if the opponent deviates
+
+Local trial 0: 6W/0D/0L, Elo 2112 (v1: 1654).
+
 ## Build
 
 The readable source is packed into `main.py` with `makefun compress`. The search
